@@ -1,0 +1,30 @@
+@startuml
+skinparam shadowing false
+skinparam defaultFontName SansSerif
+left to right direction
+actor "Quản trị viên" as A
+rectangle "Quản trị" {
+ usecase "Quản lý sản phẩm" as P
+ usecase "Thêm / sửa / ẩn" as Edit
+ usecase "Upload ảnh" as Image
+ usecase "Cập nhật tồn kho" as Stock
+ usecase "CRUD danh mục JDBC" as Cat
+ usecase "Xử lý đơn" as Order
+ usecase "Kiểm tra chuyển trạng thái" as State
+ usecase "Xem báo cáo" as Report
+ usecase "Chọn kỳ báo cáo" as Date
+ usecase "Tổng hợp doanh thu / bán chạy" as Agg
+}
+A --> P
+A --> Stock
+A --> Cat
+A --> Order
+A --> Report
+P ..> Edit : <<include>>
+Image ..> Edit : <<extend>>
+[có ảnh mới]
+Order ..> State : <<include>>
+Report ..> Date : <<include>>
+Report ..> Agg : <<include>>
+
+@enduml

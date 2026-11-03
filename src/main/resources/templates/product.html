@@ -1,0 +1,56 @@
+<!doctype html><html lang="vi" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments :: head('Chi tiết laptop')}">
+</head>
+<body>
+<nav th:replace="~{fragments :: nav}">
+</nav>
+<main class="container py-4">
+<div th:if="${message}" class="alert alert-info" th:text="${message}">
+</div><a th:href="@{/}" class="text-decoration-none">← Bộ sưu tập</a>
+<div class="row g-5 mt-1">
+<div class="col-md-6">
+<div class="rounded-4 product-detail p-4"><img class="img-fluid" th:src="${product.imageUrl}" th:alt="${product.name}">
+</div>
+</div>
+<div class="col-md-6">
+<p class="eyebrow" th:text="${product.brand}">
+</p>
+<h1 class="fw-bold" th:text="${product.name}">
+</h1>
+<p class="fs-2 text-primary fw-bold" th:text="${#numbers.formatInteger(product.price,1,'POINT')}+' ₫'">
+</p><dl class="row specs"><dt class="col-4">CPU</dt><dd class="col-8" th:text="${product.cpu}"></dd><dt class="col-4">RAM</dt><dd class="col-8" th:text="${product.ram}"></dd><dt class="col-4">Ổ cứng</dt><dd class="col-8" th:text="${product.storage}"></dd><dt class="col-4">Đồ họa</dt><dd class="col-8" th:text="${product.gpu}"></dd><dt class="col-4">Màn hình</dt><dd class="col-8" th:text="${product.screen}"></dd><dt class="col-4">Tồn kho</dt><dd class="col-8" th:text="${product.stock}"></dd></dl>
+<form th:action="@{/cart/items}" method="post" sec:authorize="isAuthenticated()" class="d-flex gap-2">
+<input type="hidden" name="productId" th:value="${product.id}">
+<input aria-label="Số lượng" class="form-control qty" type="number" name="quantity" value="1" min="1" max="20">
+<button class="btn btn-primary" th:disabled="${product.stock==0}">Thêm vào giỏ hàng</button>
+</form><a sec:authorize="!isAuthenticated()" th:href="@{/login}" class="btn btn-dark">Đăng nhập để mua hàng</a>
+<p class="text-secondary mt-4" th:text="${product.description}">
+</p>
+</div>
+</div>
+<section class="mt-5">
+<h2 class="h4">Đánh giá từ người mua</h2>
+<p th:if="${reviews.empty}" class="text-secondary">Chưa có đánh giá.</p>
+<article class="border-bottom py-3" th:each="r:${reviews}"><strong th:text="${r.author}"></strong><span class="badge text-bg-warning ms-2" th:text="${r.rating}+' / 5 sao'"></span>
+<p class="mt-2" th:text="${r.content}">
+</p>
+</article>
+<form sec:authorize="isAuthenticated()" th:action="@{/reviews}" method="post" class="panel mt-4">
+<h3 class="h5">Chia sẻ trải nghiệm</h3>
+<p class="small text-secondary">Bạn có thể đánh giá một lần sau khi đơn hàng đã giao.</p>
+<input type="hidden" name="productId" th:value="${product.id}">
+<label for="rating" class="form-label">Số sao</label>
+<select id="rating" name="rating" class="form-select mb-3">
+<option th:each="n:${#numbers.sequence(5,1)}" th:value="${n}" th:text="${n}+' sao'">
+</option>
+</select>
+<label for="content" class="form-label">Bình luận</label>
+<textarea id="content" name="content" maxlength="1500" required class="form-control mb-3">
+</textarea>
+<button class="btn btn-dark">Gửi đánh giá</button>
+</form>
+</section>
+</main>
+<footer th:replace="~{fragments :: footer}">
+</footer>
+</body></html>

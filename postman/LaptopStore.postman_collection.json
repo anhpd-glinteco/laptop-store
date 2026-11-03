@@ -1,0 +1,454 @@
+{
+  "info": {
+    "name": "Laptop Store — Session + CSRF",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Chạy tuần tự, giữ cookie jar. Lấy CSRF lại sau login. Tắt Automatically follow redirects nếu muốn quan sát 302. Chỉ chạy trên dữ liệu học tập."
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080"
+    },
+    {
+      "key": "email",
+      "value": "buyer@example.test"
+    },
+    {
+      "key": "password",
+      "value": "TestPassword@123"
+    },
+    {
+      "key": "productId",
+      "value": "1"
+    },
+    {
+      "key": "orderId",
+      "value": ""
+    },
+    {
+      "key": "csrf",
+      "value": ""
+    },
+    {
+      "key": "checkoutToken",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "01 CSRF token (trước đăng ký/đăng nhập)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/csrf"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\",()=>pm.response.to.have.status(200));",
+              "pm.collectionVariables.set(\"csrf\", pm.response.json().token);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "02 Đăng ký khách (chạy một lần)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "X-CSRF-TOKEN",
+            "value": "{{csrf}}"
+          }
+        ],
+        "url": "{{baseUrl}}/register",
+        "body": {
+          "mode": "urlencoded",
+          "urlencoded": [
+            {
+              "key": "email",
+              "value": "{{email}}",
+              "type": "text"
+            },
+            {
+              "key": "password",
+              "value": "{{password}}",
+              "type": "text"
+            },
+            {
+              "key": "fullName",
+              "value": "Khách Postman",
+              "type": "text"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Trả form hoặc chuyển trang\",()=>pm.expect([200,302]).to.include(pm.response.code));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "03 Đăng nhập",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "X-CSRF-TOKEN",
+            "value": "{{csrf}}"
+          }
+        ],
+        "url": "{{baseUrl}}/login",
+        "body": {
+          "mode": "urlencoded",
+          "urlencoded": [
+            {
+              "key": "username",
+              "value": "{{email}}",
+              "type": "text"
+            },
+            {
+              "key": "password",
+              "value": "{{password}}",
+              "type": "text"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "04 Lấy lại CSRF sau login",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/csrf"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.collectionVariables.set(\"csrf\", pm.response.json().token);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "05 Danh sách sản phẩm",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/products"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Danh sách JSON\",()=>pm.expect(pm.response.json()).to.be.an(\"array\"));",
+              "if(pm.response.json().length) pm.collectionVariables.set(\"productId\", String(pm.response.json()[0].id));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "06 Lọc Dell, 10–30 triệu",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/products?brand=Dell&min=10000000&max=30000000&sort=priceAsc"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.response.json().forEach(p=>{pm.expect(p.brand).eq(\"Dell\");pm.expect(p.price).within(10000000,30000000);});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "07 Thêm giỏ",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "X-CSRF-TOKEN",
+            "value": "{{csrf}}"
+          }
+        ],
+        "url": "{{baseUrl}}/cart/items",
+        "body": {
+          "mode": "urlencoded",
+          "urlencoded": [
+            {
+              "key": "productId",
+              "value": "{{productId}}",
+              "type": "text"
+            },
+            {
+              "key": "quantity",
+              "value": "1",
+              "type": "text"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "08 Đọc checkout lấy token",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/checkout"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const m=pm.response.text().match(/name=\"token\"[^>]*value=\"([^\"]+)\"/);",
+              "const n=pm.response.text().match(/value=\"([^\"]+)\"[^>]*name=\"token\"/);",
+              "if(m||n) pm.collectionVariables.set(\"checkoutToken\",(m||n)[1]);",
+              "pm.test(\"Có checkout token\",()=>pm.expect(Boolean(m||n)).eq(true));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "09 Đặt COD",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "X-CSRF-TOKEN",
+            "value": "{{csrf}}"
+          }
+        ],
+        "url": "{{baseUrl}}/checkout",
+        "body": {
+          "mode": "urlencoded",
+          "urlencoded": [
+            {
+              "key": "fullName",
+              "value": "Khách Postman",
+              "type": "text"
+            },
+            {
+              "key": "phone",
+              "value": "0901234567",
+              "type": "text"
+            },
+            {
+              "key": "address",
+              "value": "123 Đường Mẫu, Hà Nội",
+              "type": "text"
+            },
+            {
+              "key": "paymentMethod",
+              "value": "COD",
+              "type": "text"
+            },
+            {
+              "key": "coupon",
+              "value": "LAPTOP5",
+              "type": "text"
+            },
+            {
+              "key": "token",
+              "value": "{{checkoutToken}}",
+              "type": "text"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "10 Đọc đơn của mình",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/orders"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const rows=pm.response.json();pm.test(\"Có đơn\",()=>pm.expect(rows.length).greaterThan(0));",
+              "if(rows.length) pm.collectionVariables.set(\"orderId\",String(rows[0].id));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "11 Gửi lại token cũ (không tạo đơn trùng)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "X-CSRF-TOKEN",
+            "value": "{{csrf}}"
+          }
+        ],
+        "url": "{{baseUrl}}/checkout",
+        "body": {
+          "mode": "urlencoded",
+          "urlencoded": [
+            {
+              "key": "fullName",
+              "value": "Khách Postman",
+              "type": "text"
+            },
+            {
+              "key": "phone",
+              "value": "0901234567",
+              "type": "text"
+            },
+            {
+              "key": "address",
+              "value": "123 Đường Mẫu, Hà Nội",
+              "type": "text"
+            },
+            {
+              "key": "paymentMethod",
+              "value": "COD",
+              "type": "text"
+            },
+            {
+              "key": "coupon",
+              "value": "LAPTOP5",
+              "type": "text"
+            },
+            {
+              "key": "token",
+              "value": "{{checkoutToken}}",
+              "type": "text"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "12 Customer bị chặn admin",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/admin"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"403\",()=>pm.response.to.have.status(403));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "13 Hủy đơn COD chưa duyệt",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "X-CSRF-TOKEN",
+            "value": "{{csrf}}"
+          }
+        ],
+        "url": "{{baseUrl}}/orders/{{orderId}}/cancel",
+        "body": {
+          "mode": "urlencoded",
+          "urlencoded": []
+        }
+      }
+    },
+    {
+      "name": "14 Giả IPN VNPay phải bị từ chối",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/payments/vnpay/ipn?vnp_TmnCode=FAKE&vnp_TxnRef=FAKE&vnp_Amount=100&vnp_ResponseCode=00&vnp_SecureHash=fake"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Chữ ký không hợp lệ\",()=>pm.expect(pm.response.json().RspCode).eq(\"97\"));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "15 Đánh giá chưa giao bị từ chối",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "X-CSRF-TOKEN",
+            "value": "{{csrf}}"
+          }
+        ],
+        "url": "{{baseUrl}}/reviews",
+        "body": {
+          "mode": "urlencoded",
+          "urlencoded": [
+            {
+              "key": "productId",
+              "value": "{{productId}}",
+              "type": "text"
+            },
+            {
+              "key": "rating",
+              "value": "5",
+              "type": "text"
+            },
+            {
+              "key": "content",
+              "value": "Không có đơn đã giao",
+              "type": "text"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"400\",()=>pm.response.to.have.status(400));"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

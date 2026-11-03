@@ -1,0 +1,27 @@
+<!doctype html><html lang="vi" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments :: head('Đăng ký')}">
+</head>
+<body>
+<nav th:replace="~{fragments :: nav}">
+</nav>
+<main class="container py-4">
+<div th:if="${message}" class="alert alert-info" th:text="${message}">
+</div>
+<section class="auth panel mx-auto">
+<h1 class="h2 mb-4">Tạo tài khoản</h1>
+<form th:action="@{/register}" th:object="${form}" method="post">
+<div th:replace="~{fragments :: errors}">
+</div>
+<label for="fullName" class="form-label">Họ tên</label>
+<input th:field="*{fullName}" required maxlength="100" class="form-control mb-3">
+<label for="email" class="form-label">Email</label>
+<input th:field="*{email}" type="email" required maxlength="160" class="form-control mb-3">
+<label for="password" class="form-label">Mật khẩu (10–60 ký tự)</label>
+<input th:field="*{password}" type="password" required minlength="10" maxlength="60" autocomplete="new-password" class="form-control mb-4">
+<button class="btn btn-primary w-100">Đăng ký</button>
+</form>
+</section>
+</main>
+<footer th:replace="~{fragments :: footer}">
+</footer>
+</body></html>

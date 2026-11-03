@@ -1,0 +1,13 @@
+Laptop Store — verification on 2026-11-03
+Java 17; Maven 3.9.11; Spring Boot 3.5.16
+Command: mvn package
+Integration suite: StoreIntegrationTest
+tests: 24
+failures: 0
+errors: 0
+skipped: 0
+time: 20.835
+BUILD SUCCESS
+Profiles: test (H2 in-memory); MockMvc, Spring Security and transaction services.
+Not verified here: MySQL Server, Docker, real merchant sandbox transactions, browser visual layout.
+Packaged JAR demo HTTP smoke PASS: startup, 6 seeded products, registration/login, cart, COD checkout, admin transitions, payment state, review and dashboard.

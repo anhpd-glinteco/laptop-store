@@ -1,0 +1,54 @@
+<!doctype html><html lang="vi" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments :: head('Xử lý đơn hàng')}">
+</head>
+<body>
+<nav th:replace="~{fragments :: nav}">
+</nav>
+<main class="container py-4">
+<div th:if="${message}" class="alert alert-info" th:text="${message}">
+</div>
+<div th:replace="~{fragments :: adminnav}">
+</div>
+<h1 class="h2 mb-4" th:text="'Đơn hàng #'+${order.id}">
+</h1>
+<div class="row g-4">
+<div class="col-md-7 panel">
+<h2 class="h5">Sản phẩm</h2>
+<div class="d-flex justify-content-between border-bottom py-3" th:each="i:${items}"><span th:text="${i.productName}+' × '+${i.quantity}"></span><strong th:text="${#numbers.formatInteger(i.lineTotal,1,'POINT')}+' ₫'"></strong>
+</div>
+<p class="mt-3" th:text="'Giảm giá: '+${#numbers.formatInteger(order.discount,1,'POINT')}+' ₫'">
+</p>
+<p class="h4" th:text="'Tổng tiền: '+${#numbers.formatInteger(order.total,1,'POINT')}+' ₫'">
+</p>
+</div>
+<aside class="col-md-4 panel">
+<h2 class="h5">Giao hàng</h2>
+<p th:text="${order.fullName}">
+</p>
+<p th:text="${order.phone}">
+</p>
+<p th:text="${order.address}">
+</p>
+<p>Trạng thái: <strong th:text="${order.status}"></strong>
+</p>
+<p>Thanh toán: <strong th:text="${order.paymentMethod}+' / '+${order.paymentStatus}"></strong>
+</p>
+<p th:if="${order.paymentStatus=='REVIEW_REQUIRED'}" class="alert alert-warning">Thanh toán đến sau khi đơn đóng. Liên hệ quản trị để đối soát / hoàn tiền; không tự giao hàng.</p>
+</aside>
+</div>
+<form th:action="@{/admin/orders/{id}/status(id=${order.id})}" method="post" class="panel mt-4">
+<label class="form-label" for="status">Chuyển trạng thái tiếp theo</label>
+<div class="d-flex gap-3">
+<select id="status" name="status" class="form-select">
+<option value="PREPARING">Duyệt đơn → Đang chuẩn bị</option>
+<option value="SHIPPING">Đang giao</option>
+<option value="DELIVERED">Đã giao / đã thu tiền COD</option>
+</select>
+<button class="btn btn-primary">Cập nhật</button>
+</div>
+<p class="small text-secondary mt-3">Thứ tự bắt buộc: NEW → PREPARING → SHIPPING → DELIVERED. Với COD, chỉ chọn Đã giao sau khi xác nhận đã thu tiền.</p>
+</form>
+</main>
+<footer th:replace="~{fragments :: footer}">
+</footer>
+</body></html>

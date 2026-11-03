@@ -1,0 +1,33 @@
+@startuml
+skinparam shadowing false
+skinparam defaultFontName SansSerif
+actor "Khách hàng" as C
+participant "Website" as W
+participant "Cổng Sandbox" as G
+database "MySQL" as D
+C -> W : POST /orders/{id}/pay
+W -> D : khóa đơn, kiểm owner/trạng thái/hạn
+W -> G : yêu cầu ký (MoMo) / tạo URL ký (VNPay)
+W --> C : redirect URL cổng
+C -> G : thanh toán thử nghiệm
+G -> W : IPN đã ký (server-to-server)
+W -> W : kiểm chữ ký / merchant / amount / ref
+alt dữ liệu sai
+W --> G : từ chối, không ghi DB
+else hợp lệ
+W -> D : khóa đơn
+alt đã xác nhận
+W --> G : Already confirmed
+else đơn còn chờ
+W -> D : cập nhật PAID / commit
+W --> G : Success
+else đơn đã đóng, thanh toán thành công đến muộn
+W -> D : REVIEW_REQUIRED / commit
+W --> G : acknowledged
+end
+end
+G --> C : quay về Return URL
+C -> W : GET /payments/return
+W --> C : hướng dẫn xem trạng thái (không tự ghi PAID)
+
+@enduml

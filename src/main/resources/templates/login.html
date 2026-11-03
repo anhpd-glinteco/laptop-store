@@ -1,0 +1,27 @@
+<!doctype html><html lang="vi" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments :: head('Đăng nhập')}">
+</head>
+<body>
+<nav th:replace="~{fragments :: nav}">
+</nav>
+<main class="container py-4">
+<div th:if="${message}" class="alert alert-info" th:text="${message}">
+</div>
+<section class="auth panel mx-auto">
+<p class="eyebrow">CHÀO MỪNG TRỞ LẠI</p>
+<h1 class="h2 mb-4">Đăng nhập</h1>
+<div class="alert alert-danger" th:if="${param.error}">Email hoặc mật khẩu chưa đúng.</div>
+<form th:action="@{/login}" method="post">
+<label for="email" class="form-label">Email</label>
+<input id="email" name="username" type="email" autocomplete="username" class="form-control mb-3" required>
+<label for="password" class="form-label">Mật khẩu</label>
+<input id="password" name="password" type="password" autocomplete="current-password" class="form-control mb-4" required>
+<button class="btn btn-primary w-100">Đăng nhập</button>
+</form>
+<p class="mt-4 mb-0">Chưa có tài khoản? <a th:href="@{/register}">Đăng ký</a>
+</p>
+</section>
+</main>
+<footer th:replace="~{fragments :: footer}">
+</footer>
+</body></html>

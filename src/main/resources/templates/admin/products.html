@@ -1,0 +1,36 @@
+<!doctype html><html lang="vi" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments :: head('Quản lý sản phẩm')}">
+</head>
+<body>
+<nav th:replace="~{fragments :: nav}">
+</nav>
+<main class="container py-4">
+<div th:if="${message}" class="alert alert-info" th:text="${message}">
+</div>
+<div th:replace="~{fragments :: adminnav}">
+</div>
+<div class="d-flex justify-content-between mb-4">
+<h1 class="h2">Sản phẩm &amp; kho hàng</h1><a th:href="@{/admin/products/new}" class="btn btn-primary">+ Thêm laptop</a>
+</div>
+<div class="table-responsive panel">
+<table class="table align-middle">
+<thead>
+<tr><th>Tên</th><th>Hãng</th><th>Giá</th><th>Có thể bán</th><th>Hiển thị</th><th>Thao tác</th>
+</tr>
+</thead>
+<tbody>
+<tr th:each="p:${products}"><td th:text="${p.name}"></td><td th:text="${p.brand}"></td><td th:text="${#numbers.formatInteger(p.price,1,'POINT')}"></td><td th:text="${p.stock}"></td><td th:text="${p.active?'Đang bán':'Đã ẩn'}"></td><td>
+<div class="d-flex gap-2"><a class="btn btn-sm btn-outline-dark" th:href="@{/admin/products/{id}/edit(id=${p.id})}">Sửa / nhập kho</a>
+<form th:action="@{/admin/products/{id}/hide(id=${p.id})}" method="post">
+<button class="btn btn-sm btn-outline-danger">Ẩn</button>
+</form>
+</div></td>
+</tr>
+</tbody>
+</table>
+<p class="small text-secondary">Tồn kho là số lượng có thể bán, đã trừ hàng đang giữ cho đơn. Ẩn sản phẩm để giữ lịch sử giao dịch.</p>
+</div>
+</main>
+<footer th:replace="~{fragments :: footer}">
+</footer>
+</body></html>

@@ -1,0 +1,40 @@
+<!doctype html><html lang="vi" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments :: head('Giỏ hàng')}">
+</head>
+<body>
+<nav th:replace="~{fragments :: nav}">
+</nav>
+<main class="container py-4">
+<div th:if="${message}" class="alert alert-info" th:text="${message}">
+</div>
+<h1 class="h2 fw-bold mb-4">Giỏ hàng của bạn</h1>
+<p th:if="${lines.empty}" class="panel">Giỏ hàng đang trống. <a th:href="@{/}">Chọn laptop</a>
+</p>
+<div th:unless="${lines.empty}">
+<div class="table-responsive panel">
+<table class="table align-middle">
+<thead>
+<tr><th>Sản phẩm</th><th>Đơn giá</th><th>Số lượng</th><th>Thành tiền</th>
+</tr>
+</thead>
+<tbody>
+<tr th:each="l:${lines}"><td><a th:href="@{/products/{id}(id=${l.product.id})}" th:text="${l.product.name}"></a><span th:unless="${l.product.active}" class="badge text-bg-danger">Ngừng bán</span></td><td th:text="${#numbers.formatInteger(l.product.price,1,'POINT')}"></td><td>
+<form th:action="@{/cart/update}" method="post" class="d-flex gap-2">
+<input type="hidden" name="productId" th:value="${l.product.id}">
+<input name="quantity" class="form-control qty" type="number" min="0" max="20" th:value="${l.quantity}" aria-label="Số lượng, nhập 0 để xóa">
+<button class="btn btn-sm btn-outline-dark">Cập nhật</button>
+</form></td><td th:text="${#numbers.formatInteger(l.lineTotal,1,'POINT')}+' ₫'"></td>
+</tr>
+</tbody>
+</table>
+<p class="text-secondary small">Nhập số lượng 0 để xóa. Giá và tồn kho sẽ được kiểm tra lại khi đặt hàng.</p>
+</div>
+<div class="text-end mt-4">
+<p class="h4" th:text="'Tạm tính: '+${#numbers.formatInteger(total,1,'POINT')}+' ₫'">
+</p><a class="btn btn-primary mt-3" th:href="@{/checkout}">Tiến hành đặt hàng →</a>
+</div>
+</div>
+</main>
+<footer th:replace="~{fragments :: footer}">
+</footer>
+</body></html>

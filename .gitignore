@@ -1,0 +1,7 @@
+target/
+.env
+uploads/
+data/
+*.log
+.idea/
+.vscode/settings.json

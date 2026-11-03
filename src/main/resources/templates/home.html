@@ -1,0 +1,89 @@
+<!doctype html><html lang="vi" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments :: head('Chọn laptop của bạn')}">
+</head>
+<body>
+<nav th:replace="~{fragments :: nav}">
+</nav>
+<main class="container py-4">
+<div th:if="${message}" class="alert alert-info" th:text="${message}">
+</div>
+<section class="hero p-4 p-md-5 mb-4 rounded-4">
+<div class="row align-items-center">
+<div class="col-lg-7">
+<div class="eyebrow mb-3">LÀM VIỆC · SÁNG TẠO · CHƠI GAME</div>
+<h1 class="display-5 fw-bold">Chiếc laptop phù hợp.<br>Mọi ý tưởng tiến xa.</h1>
+<p class="lead text-secondary mt-3">Khám phá cấu hình theo nhu cầu của bạn.</p><a href="#catalog" class="btn btn-primary mt-2">Khám phá bộ sưu tập →</a>
+</div>
+<div class="col-lg-5"><img class="img-fluid" th:src="@{/img/laptop.svg}" alt="Minh họa laptop">
+</div>
+</div>
+</section>
+<div id="catalog" class="d-flex justify-content-between align-items-center mb-3">
+<h2 class="h3 fw-bold">Tìm máy dành cho bạn</h2><span class="text-secondary" th:text="${page.totalElements}+' sản phẩm'"></span>
+</div>
+<form th:action="@{/}" method="get" class="row g-2 filter-panel p-3 mb-4">
+<div class="col-md-3">
+<label class="form-label" for="q">Tìm kiếm</label>
+<input id="q" name="q" class="form-control" placeholder="Tên laptop…" th:value="${q}">
+</div>
+<div class="col-md-2">
+<label class="form-label" for="brand">Hãng</label>
+<select id="brand" name="brand" class="form-select">
+<option value="">Tất cả hãng</option>
+<option th:each="b:${brands}" th:value="${b}" th:text="${b}" th:selected="${brand==b}">
+</option>
+</select>
+</div>
+<div class="col-md-2">
+<label class="form-label" for="purpose">Nhu cầu</label>
+<select id="purpose" name="purpose" class="form-select">
+<option value="">Mọi nhu cầu</option>
+<option value="OFFICE" th:selected="${purpose=='OFFICE'}">Văn phòng</option>
+<option value="GAMING" th:selected="${purpose=='GAMING'}">Gaming</option>
+<option value="GRAPHICS" th:selected="${purpose=='GRAPHICS'}">Đồ họa</option>
+</select>
+</div>
+<div class="col-md-2">
+<label class="form-label" for="min">Giá từ (₫)</label>
+<input id="min" name="min" type="number" min="0" class="form-control" th:value="${min}">
+</div>
+<div class="col-md-2">
+<label class="form-label" for="max">Giá đến (₫)</label>
+<input id="max" name="max" type="number" min="0" class="form-control" th:value="${max}">
+</div>
+<div class="col-md-3">
+<label class="form-label" for="sort">Sắp xếp</label>
+<select id="sort" name="sort" class="form-select">
+<option value="newest" th:selected="${sort=='newest'}">Mới nhất</option>
+<option value="priceAsc" th:selected="${sort=='priceAsc'}">Giá tăng dần</option>
+<option value="priceDesc" th:selected="${sort=='priceDesc'}">Giá giảm dần</option>
+<option value="name" th:selected="${sort=='name'}">Tên A–Z</option>
+</select>
+</div>
+<div class="col-md-3 d-flex gap-2 align-items-end">
+<button class="btn btn-dark">Lọc sản phẩm</button><a th:href="@{/}" class="btn btn-outline-secondary">Đặt lại</a>
+</div>
+</form>
+<div class="alert alert-light" th:if="${page.empty}">Chưa có sản phẩm phù hợp. Hãy thử bộ lọc khác.</div>
+<div class="row g-4">
+<div class="col-md-6 col-lg-4" th:each="p:${page.content}">
+<article class="card product-card h-100"><a th:href="@{/products/{id}(id=${p.id})}" class="product-image"><img th:src="${p.imageUrl}" th:alt="${p.name}" loading="lazy"></a>
+<div class="card-body">
+<div class="small text-secondary mb-2" th:text="${p.brand}+' · '+${p.purpose}">
+</div>
+<h3 class="h5"><a class="stretched-link text-decoration-none text-dark" th:href="@{/products/{id}(id=${p.id})}" th:text="${p.name}"></a>
+</h3>
+<p class="small text-secondary" th:text="${p.cpu}+' / '+${p.ram}+' / '+${p.storage}">
+</p>
+<div class="d-flex justify-content-between align-items-center"><strong class="fs-5 text-primary" th:text="${#numbers.formatInteger(p.price,1,'POINT')}+' ₫'"></strong><span class="badge text-bg-light" th:text="${p.stock>0?'Còn hàng':'Hết hàng'}"></span>
+</div>
+</div>
+</article>
+</div>
+</div>
+<nav class="d-flex gap-3 mt-4" aria-label="Phân trang"><a th:if="${page.hasPrevious()}" th:href="@{/(q=${q},brand=${brand},purpose=${purpose},min=${min},max=${max},sort=${sort},page=${page.number-1})}">← Trang trước</a><span th:if="${page.totalPages>0}" th:text="'Trang '+${page.number+1}+' / '+${page.totalPages}"></span><a th:if="${page.hasNext()}" th:href="@{/(q=${q},brand=${brand},purpose=${purpose},min=${min},max=${max},sort=${sort},page=${page.number+1})}">Trang sau →</a>
+</nav>
+</main>
+<footer th:replace="~{fragments :: footer}">
+</footer>
+</body></html>

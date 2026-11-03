@@ -1,0 +1,30 @@
+@startuml
+skinparam shadowing false
+skinparam defaultFontName SansSerif
+left to right direction
+actor "Khách hàng" as C
+actor "Cổng thanh toán" as G
+rectangle "Đặt hàng" {
+ usecase "Quản lý giỏ" as Cart
+ usecase "Đặt hàng" as Place
+ usecase "Kiểm tra thông tin nhận" as Address
+ usecase "Kiểm tra giá / tồn kho" as Stock
+ usecase "Áp dụng mã giảm" as Coupon
+ usecase "Lưu đơn & giữ hàng" as Save
+ usecase "Thanh toán online" as Pay
+ usecase "Xác thực IPN" as IPN
+ usecase "Hủy đơn COD chưa duyệt" as Cancel
+}
+C --> Cart
+C --> Place
+C --> Pay
+C --> Cancel
+Place ..> Address : <<include>>
+Place ..> Stock : <<include>>
+Place ..> Save : <<include>>
+Coupon ..> Place : <<extend>>
+[có mã giảm]
+Pay ..> IPN : <<include>>
+G --> Pay
+
+@enduml

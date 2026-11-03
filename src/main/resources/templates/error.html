@@ -1,0 +1,17 @@
+<!doctype html><html lang="vi" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments :: head('Có lỗi xảy ra')}">
+</head>
+<body>
+<nav th:replace="~{fragments :: nav}">
+</nav>
+<main class="container py-4">
+<div th:if="${message}" class="alert alert-info" th:text="${message}">
+</div>
+<section class="panel">
+<h1 class="h3">Yêu cầu chưa thực hiện được</h1>
+<p>Kiểm tra địa chỉ, dữ liệu nhập hoặc dung lượng ảnh (tối đa 2 MB).</p><a th:href="@{/}">Về trang chủ</a>
+</section>
+</main>
+<footer th:replace="~{fragments :: footer}">
+</footer>
+</body></html>

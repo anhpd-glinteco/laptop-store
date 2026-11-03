@@ -1,0 +1,17 @@
+<!doctype html><html lang="vi" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments :: head('Kết quả thanh toán')}">
+</head>
+<body>
+<nav th:replace="~{fragments :: nav}">
+</nav>
+<main class="container py-4">
+<div th:if="${message}" class="alert alert-info" th:text="${message}">
+</div>
+<section class="panel auth mx-auto">
+<h1 class="h3">Đã quay về từ cổng thanh toán</h1>
+<p>Website chỉ ghi nhận thanh toán khi nhận được thông báo hợp lệ từ cổng. Trang quay về này không xác nhận đơn đã thanh toán.</p><a th:href="@{/orders}" class="btn btn-primary">Kiểm tra đơn hàng</a>
+</section>
+</main>
+<footer th:replace="~{fragments :: footer}">
+</footer>
+</body></html>

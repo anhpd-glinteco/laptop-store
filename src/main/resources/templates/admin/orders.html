@@ -1,0 +1,28 @@
+<!doctype html><html lang="vi" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments :: head('Quản lý đơn hàng')}">
+</head>
+<body>
+<nav th:replace="~{fragments :: nav}">
+</nav>
+<main class="container py-4">
+<div th:if="${message}" class="alert alert-info" th:text="${message}">
+</div>
+<div th:replace="~{fragments :: adminnav}">
+</div>
+<h1 class="h2 mb-4">Tất cả đơn hàng</h1>
+<div class="table-responsive">
+<table class="table align-middle">
+<thead>
+<tr><th>Mã đơn</th><th>Ngày đặt</th><th>Tổng tiền</th><th>Đơn hàng</th><th>Thanh toán</th><th></th>
+</tr>
+</thead>
+<tbody>
+<tr th:each="o:${orders}"><td th:text="'#'+${o.id}"></td><td th:text="${#temporals.format(o.createdAt,'dd/MM/yyyy HH:mm')}"></td><td th:text="${#numbers.formatInteger(o.total,1,'POINT')}+' ₫'"></td><td th:text="${o.status}"></td><td th:text="${o.paymentMethod}+' / '+${o.paymentStatus}"></td><td><a th:href="@{/admin/orders/{id}(id=${o.id})}">Chi tiết</a></td>
+</tr>
+</tbody>
+</table>
+</div>
+</main>
+<footer th:replace="~{fragments :: footer}">
+</footer>
+</body></html>

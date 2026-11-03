@@ -1,0 +1,29 @@
+@startuml
+skinparam shadowing false
+skinparam defaultFontName SansSerif
+left to right direction
+actor "Khách truy cập" as G
+actor "Khách hàng" as C
+C --|> G
+rectangle "Tài khoản và đánh giá" {
+ usecase "Đăng ký" as Reg
+ usecase "Kiểm email / băm mật khẩu" as Hash
+ usecase "Đăng nhập" as Login
+ usecase "Xác thực thông tin" as Auth
+ usecase "Cập nhật hồ sơ" as Profile
+ usecase "Xem đơn của mình" as History
+ usecase "Kiểm tra chủ đơn" as Owner
+ usecase "Viết đánh giá" as Review
+ usecase "Kiểm tra đã giao & chưa đánh giá" as Bought
+}
+G --> Reg
+G --> Login
+Reg ..> Hash : <<include>>
+Login ..> Auth : <<include>>
+C --> Profile
+C --> History
+C --> Review
+History ..> Owner : <<include>>
+Review ..> Bought : <<include>>
+
+@enduml

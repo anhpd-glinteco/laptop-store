@@ -1,0 +1,35 @@
+@startuml
+skinparam shadowing false
+skinparam defaultFontName SansSerif
+left to right direction
+actor "Khách truy cập" as Guest
+actor "Khách hàng" as Customer
+actor "Quản trị viên" as Admin
+actor "Cổng VNPay/MoMo" as Gateway
+Customer --|> Guest
+rectangle "Website bán laptop" {
+ usecase "Tra cứu / xem laptop" as Browse
+ usecase "Đăng ký / đăng nhập" as Auth
+ usecase "Hồ sơ & lịch sử đơn" as Profile
+ usecase "Giỏ hàng / đặt hàng" as Checkout
+ usecase "Thanh toán online" as Pay
+ usecase "Đánh giá sau mua" as Review
+ usecase "Quản lý sản phẩm / kho" as Product
+ usecase "CRUD danh mục" as Category
+ usecase "Xử lý đơn hàng" as Order
+ usecase "Xem doanh thu" as Report
+}
+Guest --> Browse
+Guest --> Auth
+Customer --> Profile
+Customer --> Checkout
+Customer --> Pay
+Customer --> Review
+Gateway --> Pay
+Admin --> Auth
+Admin --> Product
+Admin --> Category
+Admin --> Order
+Admin --> Report
+
+@enduml

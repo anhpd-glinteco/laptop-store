@@ -1,0 +1,32 @@
+@startuml
+skinparam shadowing false
+skinparam defaultFontName SansSerif
+actor "Khách hàng" as C
+participant "StoreController" as MVC
+participant "OrderServiceImpl" as S
+database "MySQL" as DB
+C -> MVC : POST /checkout + CSRF + token
+MVC -> MVC : validate DTO / session token
+MVC -> S : checkout(accountId, form)
+group Transaction
+S -> DB : khóa account + kiểm checkout_token
+alt token đã dùng
+DB --> S : đơn cũ
+S --> MVC : đơn cũ (không tạo thêm)
+else token mới
+S -> DB : đọc giỏ / khóa products theo ID
+DB --> S : giá / tồn mới nhất
+alt thiếu hàng hoặc coupon sai
+S -> DB : ROLLBACK
+S --> MVC : lỗi nghiệp vụ
+else hợp lệ
+S -> S : tính tiền / giảm giá
+S -> DB : giảm stock + INSERT order/items
+S -> DB : DELETE cart + COMMIT
+S --> MVC : mã đơn
+end
+end
+end
+MVC --> C : trang chi tiết hoặc thông báo lỗi
+
+@enduml

@@ -1,0 +1,25 @@
+<!doctype html><html lang="vi" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:fragment="head(title)"><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title th:text="${title}+' | Laptop Store'"></title><link rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.3/css/bootstrap.min.css}"><link rel="stylesheet" th:href="@{/css/store.css}"><script defer th:src="@{/webjars/bootstrap/5.3.3/js/bootstrap.bundle.min.js}"></script>
+</head>
+<body>
+<nav th:fragment="nav" class="navbar navbar-expand-lg border-bottom bg-white sticky-top">
+<div class="container"><a class="navbar-brand fw-bold" th:href="@{/}">LAPTOP<span class="text-primary"> / </span>STORE</a>
+<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menu" aria-label="Mở menu"><span class="navbar-toggler-icon"></span>
+</button>
+<div class="collapse navbar-collapse" id="menu">
+<div class="navbar-nav ms-auto align-items-lg-center gap-2"><a class="nav-link" th:href="@{/}">Khám phá</a><a class="nav-link" sec:authorize="isAuthenticated()" th:href="@{/cart}">Giỏ hàng</a><a class="nav-link" sec:authorize="isAuthenticated()" th:href="@{/orders}">Đơn hàng</a><a class="nav-link" sec:authorize="isAuthenticated()" th:href="@{/profile}">Hồ sơ</a><a class="nav-link" sec:authorize="hasRole('ADMIN')" th:href="@{/admin}">Quản trị</a><a class="btn btn-dark" sec:authorize="!isAuthenticated()" th:href="@{/login}">Đăng nhập</a>
+<form sec:authorize="isAuthenticated()" th:action="@{/logout}" method="post">
+<button class="btn btn-outline-secondary">Đăng xuất</button>
+</form>
+</div>
+</div>
+</div>
+</nav>
+<footer th:fragment="footer" class="container border-top py-4 text-secondary small mt-5">Laptop Store · Dự án học tập TX1 · Giá và cấu hình mẫu chỉ dùng để minh họa</footer>
+<div th:fragment="adminnav" class="d-flex flex-wrap gap-2 mb-4"><a class="btn btn-outline-dark" th:href="@{/admin}">Tổng quan</a><a class="btn btn-outline-dark" th:href="@{/admin/products}">Sản phẩm &amp; kho</a><a class="btn btn-outline-dark" th:href="@{/admin/categories}">Danh mục</a><a class="btn btn-outline-dark" th:href="@{/admin/orders}">Đơn hàng</a>
+</div>
+<div th:fragment="errors" th:if="${#fields.hasAnyErrors()}" class="alert alert-danger">
+<p th:each="e:${#fields.allErrors()}" th:text="${e}" class="mb-1">
+</p>
+</div>
+</body></html>

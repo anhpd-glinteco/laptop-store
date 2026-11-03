@@ -1,0 +1,35 @@
+<!doctype html><html lang="vi" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments :: head('Danh mục JDBC')}">
+</head>
+<body>
+<nav th:replace="~{fragments :: nav}">
+</nav>
+<main class="container py-4">
+<div th:if="${message}" class="alert alert-info" th:text="${message}">
+</div>
+<div th:replace="~{fragments :: adminnav}">
+</div>
+<h1 class="h2 mb-4">Danh mục sản phẩm</h1>
+<form th:action="@{/admin/categories}" method="post" class="panel d-flex gap-3 mb-3">
+<input class="form-control" name="name" required maxlength="100" placeholder="Tên danh mục mới" aria-label="Danh mục mới">
+<button class="btn btn-primary">Thêm</button>
+</form>
+<div class="panel">
+<div class="row g-2 mb-3" th:each="c:${categories}">
+<div class="col-md-9">
+<form th:action="@{/admin/categories/{id}(id=${c.id})}" method="post" class="d-flex gap-2">
+<input class="form-control" name="name" th:value="${c.name}" required maxlength="100" aria-label="Tên danh mục">
+<button class="btn btn-outline-dark">Lưu</button>
+</form>
+</div>
+<div class="col-md-3">
+<form th:action="@{/admin/categories/{id}/delete(id=${c.id})}" method="post">
+<button class="btn btn-outline-danger">Xóa danh mục trống</button>
+</form>
+</div>
+</div>
+</div>
+</main>
+<footer th:replace="~{fragments :: footer}">
+</footer>
+</body></html>

@@ -1,0 +1,51 @@
+<!doctype html><html lang="vi" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments :: head('Đặt hàng')}">
+</head>
+<body>
+<nav th:replace="~{fragments :: nav}">
+</nav>
+<main class="container py-4">
+<div th:if="${message}" class="alert alert-info" th:text="${message}">
+</div>
+<div class="row g-4">
+<div class="col-lg-8">
+<section class="panel">
+<h1 class="h3 mb-4">Thông tin nhận hàng</h1>
+<form th:action="@{/checkout}" th:object="${form}" method="post">
+<div th:replace="~{fragments :: errors}">
+</div>
+<input type="hidden" th:field="*{token}">
+<label class="form-label" for="fullName">Họ tên</label>
+<input class="form-control mb-3" th:field="*{fullName}" required maxlength="100">
+<label class="form-label" for="phone">Điện thoại</label>
+<input class="form-control mb-3" th:field="*{phone}" required maxlength="20">
+<label class="form-label" for="address">Địa chỉ nhận hàng</label>
+<input class="form-control mb-3" th:field="*{address}" required maxlength="300">
+<label for="paymentMethod" class="form-label">Thanh toán</label>
+<select class="form-select mb-3" th:field="*{paymentMethod}">
+<option value="COD">Thanh toán khi nhận hàng (COD)</option>
+<option value="VNPAY" th:disabled="${!vnpay}">VNPay Sandbox</option>
+<option value="MOMO" th:disabled="${!momo}">MoMo Sandbox</option>
+</select>
+<p class="small text-secondary">Thanh toán online chỉ khả dụng khi đã cấu hình merchant thử nghiệm. Đơn được giữ hàng 15 phút.</p>
+<label class="form-label" for="coupon">Mã giảm giá</label>
+<input class="form-control mb-2" th:field="*{coupon}" maxlength="30">
+<p class="small text-secondary">Mã demo LAPTOP5: giảm 5%, tối đa 500.000 ₫.</p>
+<button class="btn btn-primary" th:disabled="${total==0}">Xác nhận đặt hàng</button>
+</form>
+</section>
+</div>
+<aside class="col-lg-4">
+<div class="panel">
+<h2 class="h5">Tóm tắt</h2>
+<p th:text="'Tạm tính: '+${#numbers.formatInteger(total,1,'POINT')}+' ₫'">
+</p>
+<p>Phí giao hàng: 0 ₫</p>
+<p class="small text-secondary">Số tiền sau giảm giá sẽ xuất hiện trong chi tiết đơn hàng. Giá được máy chủ tính lại lúc xác nhận.</p>
+</div>
+</aside>
+</div>
+</main>
+<footer th:replace="~{fragments :: footer}">
+</footer>
+</body></html>
