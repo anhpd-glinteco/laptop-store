@@ -10,7 +10,8 @@
 4. `docs/uml/`: 4 Use Case Diagram chuẩn PlantUML và 2 Sequence Diagram.
 5. `docs/KIEM_THU.md`: kiểm thử tự động, thủ công, Postman và giới hạn xác minh.
 6. `docs/THANH_TOAN.md`: cấu hình sandbox và xác thực IPN.
-7. `docs/DEMO_VA_NOP_BAI.md`: kịch bản 20 phút và checklist nộp.
+7. `docs/DEMO_VA_NOP_BAI.md`: kịch bản 20 mvn clean test
+mvn spring-boot:run "-Dspring-boot.run.profiles=demo"phút và checklist nộp.
 
 ## 2. Công cụ cần có
 
