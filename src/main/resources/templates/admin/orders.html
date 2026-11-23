@@ -17,7 +17,7 @@
 </tr>
 </thead>
 <tbody>
-<tr th:each="o:${orders}"><td th:text="'#'+${o.id}"></td><td th:text="${#temporals.format(o.createdAt,'dd/MM/yyyy HH:mm')}"></td><td th:text="${#numbers.formatInteger(o.total,1,'POINT')}+' ₫'"></td><td th:text="${o.status}"></td><td th:text="${o.paymentMethod}+' / '+${o.paymentStatus}"></td><td><a th:href="@{/admin/orders/{id}(id=${o.id})}">Chi tiết</a></td>
+<tr th:each="o:${orders}"><td th:text="'#'+${o.id}"></td><td th:text="${#temporals.format(o.createdAt,'dd/MM/yyyy HH:mm')}"></td><td th:text="${#numbers.formatInteger(o.total,1,'POINT')}+' ₫'"></td><td><span th:replace="~{fragments :: orderStatusBadge(${o.status})}"></span></td><td><span th:replace="~{fragments :: paymentBadge(${o.paymentMethod}, ${o.paymentStatus})}"></span></td><td><a class="btn btn-sm btn-outline-dark" th:href="@{/admin/orders/{id}(id=${o.id})}">Chi tiết</a></td>
 </tr>
 </tbody>
 </table>

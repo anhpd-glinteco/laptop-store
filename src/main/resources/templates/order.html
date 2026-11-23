@@ -27,16 +27,16 @@
 </p>
 <p th:text="${order.address}">
 </p>
-<p>Trạng thái: <strong th:text="${order.status}"></strong>
+<p>Trạng thái: <span th:replace="~{fragments :: orderStatusBadge(${order.status})}"></span>
 </p>
-<p>Thanh toán: <strong th:text="${order.paymentMethod}+' / '+${order.paymentStatus}"></strong>
+<p>Thanh toán: <span th:replace="~{fragments :: paymentBadge(${order.paymentMethod}, ${order.paymentStatus})}"></span>
 </p>
 <p th:if="${order.paymentStatus=='REVIEW_REQUIRED'}" class="alert alert-warning">Thanh toán đến sau khi đơn đóng. Liên hệ quản trị để đối soát / hoàn tiền; không tự giao hàng.</p>
 </aside>
 </div>
 <div class="mt-4">
 <form th:if="${order.status=='NEW' and order.paymentMethod=='COD'}" th:action="@{/orders/{id}/cancel(id=${order.id})}" method="post">
-<button class="btn btn-outline-danger">Hủy đơn chưa duyệt</button>
+<button class="btn btn-outline-danger" onclick="return confirm('Bạn chắc chắn muốn hủy đơn hàng này? Thao tác không thể hoàn tác.')">Hủy đơn chưa duyệt</button>
 </form>
 <form th:if="${order.status=='NEW' and order.paymentStatus=='PENDING' and order.paymentMethod!='COD'}" th:action="@{/orders/{id}/pay(id=${order.id})}" method="post">
 <button class="btn btn-primary">Mở cổng thanh toán thử nghiệm</button>

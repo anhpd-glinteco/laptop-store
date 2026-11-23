@@ -7,6 +7,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequestMapping("/admin")
@@ -95,8 +96,9 @@ public class AdminController {
   }
 
   @PostMapping("/products/{id}/hide")
-  String hide(@PathVariable long id) {
+  String hide(@PathVariable long id, RedirectAttributes ra) {
     catalog.hide(id);
+    ra.addFlashAttribute("message", "Đã cập nhật trạng thái hiển thị của sản phẩm.");
     return "redirect:/admin/products";
   }
 
@@ -107,20 +109,23 @@ public class AdminController {
   }
 
   @PostMapping("/categories")
-  String createCategory(@RequestParam String name) {
+  String createCategory(@RequestParam String name, RedirectAttributes ra) {
     categories.create(name);
+    ra.addFlashAttribute("message", "Đã tạo danh mục mới.");
     return "redirect:/admin/categories";
   }
 
   @PostMapping("/categories/{id}")
-  String editCategory(@PathVariable long id, @RequestParam String name) {
+  String editCategory(@PathVariable long id, @RequestParam String name, RedirectAttributes ra) {
     categories.update(id, name);
+    ra.addFlashAttribute("message", "Đã cập nhật tên danh mục.");
     return "redirect:/admin/categories";
   }
 
   @PostMapping("/categories/{id}/delete")
-  String deleteCategory(@PathVariable long id) {
+  String deleteCategory(@PathVariable long id, RedirectAttributes ra) {
     categories.delete(id);
+    ra.addFlashAttribute("message", "Đã xóa danh mục.");
     return "redirect:/admin/categories";
   }
 
@@ -138,8 +143,9 @@ public class AdminController {
   }
 
   @PostMapping("/orders/{id}/status")
-  String status(@PathVariable long id, @RequestParam String status) {
+  String status(@PathVariable long id, @RequestParam String status, RedirectAttributes ra) {
     service.transition(id, status);
+    ra.addFlashAttribute("message", "Đã cập nhật trạng thái đơn hàng.");
     return "redirect:/admin/orders/" + id;
   }
 }

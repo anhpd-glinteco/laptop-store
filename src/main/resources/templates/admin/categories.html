@@ -24,7 +24,7 @@
 </div>
 <div class="col-md-3">
 <form th:action="@{/admin/categories/{id}/delete(id=${c.id})}" method="post">
-<button class="btn btn-outline-danger">Xóa danh mục trống</button>
+<button class="btn btn-outline-danger" onclick="return confirm('Xác nhận xóa danh mục này?')">Xóa danh mục trống</button>
 </form>
 </div>
 </div>

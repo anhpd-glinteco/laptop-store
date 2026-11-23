@@ -8,8 +8,11 @@
 <div th:if="${message}" class="alert alert-info" th:text="${message}">
 </div>
 <h1 class="h2 fw-bold mb-4">Giỏ hàng của bạn</h1>
-<p th:if="${lines.empty}" class="panel">Giỏ hàng đang trống. <a th:href="@{/}">Chọn laptop</a>
-</p>
+<div th:if="${lines.empty}" class="panel text-center py-5">
+  <p class="fs-4 mb-2">Giỏ hàng của bạn đang trống</p>
+  <p class="text-secondary mb-4">Hãy khám phá các mẫu laptop mới nhất và chọn chiếc máy ưng ý.</p>
+  <a class="btn btn-primary" th:href="@{/}">Khám phá bộ sưu tập →</a>
+</div>
 <div th:unless="${lines.empty}">
 <div class="table-responsive panel">
 <table class="table align-middle">

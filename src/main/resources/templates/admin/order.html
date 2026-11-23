@@ -29,14 +29,14 @@
 </p>
 <p th:text="${order.address}">
 </p>
-<p>Trạng thái: <strong th:text="${order.status}"></strong>
+<p>Trạng thái: <span th:replace="~{fragments :: orderStatusBadge(${order.status})}"></span>
 </p>
-<p>Thanh toán: <strong th:text="${order.paymentMethod}+' / '+${order.paymentStatus}"></strong>
+<p>Thanh toán: <span th:replace="~{fragments :: paymentBadge(${order.paymentMethod}, ${order.paymentStatus})}"></span>
 </p>
 <p th:if="${order.paymentStatus=='REVIEW_REQUIRED'}" class="alert alert-warning">Thanh toán đến sau khi đơn đóng. Liên hệ quản trị để đối soát / hoàn tiền; không tự giao hàng.</p>
 </aside>
 </div>
-<form th:action="@{/admin/orders/{id}/status(id=${order.id})}" method="post" class="panel mt-4">
+<form th:if="${order.status!='DELIVERED' and order.status!='CANCELLED' and order.status!='EXPIRED'}" th:action="@{/admin/orders/{id}/status(id=${order.id})}" method="post" class="panel mt-4">
 <label class="form-label" for="status">Chuyển trạng thái tiếp theo</label>
 <div class="d-flex gap-3">
 <select id="status" name="status" class="form-select">
@@ -48,6 +48,9 @@
 </div>
 <p class="small text-secondary mt-3">Thứ tự bắt buộc: NEW → PREPARING → SHIPPING → DELIVERED. Với COD, chỉ chọn Đã giao sau khi xác nhận đã thu tiền.</p>
 </form>
+<div th:unless="${order.status!='DELIVERED' and order.status!='CANCELLED' and order.status!='EXPIRED'}" class="panel mt-4">
+  <p class="mb-0 text-secondary">Đơn hàng đã ở trạng thái kết thúc (<span th:replace="~{fragments :: orderStatusBadge(${order.status})}"></span>). Không thể chuyển đổi trạng thái thêm.</p>
+</div>
 </main>
 <footer th:replace="~{fragments :: footer}">
 </footer>
