@@ -22,4 +22,22 @@
 <p th:each="e:${#fields.allErrors()}" th:text="${e}" class="mb-1">
 </p>
 </div>
+<span th:fragment="orderStatusBadge(status)" th:switch="${status}">
+  <span th:case="'NEW'" class="badge bg-info text-dark">Chờ duyệt</span>
+  <span th:case="'PREPARING'" class="badge bg-warning text-dark">Đang chuẩn bị</span>
+  <span th:case="'SHIPPING'" class="badge bg-primary">Đang giao</span>
+  <span th:case="'DELIVERED'" class="badge bg-success">Đã giao</span>
+  <span th:case="'CANCELLED'" class="badge bg-danger">Đã hủy</span>
+  <span th:case="'EXPIRED'" class="badge bg-secondary">Hết hạn</span>
+  <span th:case="*" class="badge bg-light text-dark" th:text="${status}"></span>
+</span>
+<span th:fragment="paymentBadge(method, status)">
+  <span class="text-secondary" th:text="${method} + ' / '"></span>
+  <span th:switch="${status}">
+    <span th:case="'PAID'" class="badge bg-success">Đã thanh toán</span>
+    <span th:case="'PENDING'" class="badge bg-warning text-dark">Chờ thanh toán</span>
+    <span th:case="'REVIEW_REQUIRED'" class="badge bg-danger">Cần đối soát</span>
+    <span th:case="*" class="badge bg-light text-dark" th:text="${status}"></span>
+  </span>
+</span>
 </body></html>

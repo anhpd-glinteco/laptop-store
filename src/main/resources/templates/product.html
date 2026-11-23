@@ -19,9 +19,13 @@
 </h1>
 <p class="fs-2 text-primary fw-bold" th:text="${#numbers.formatInteger(product.price,1,'POINT')}+' ₫'">
 </p><dl class="row specs"><dt class="col-4">CPU</dt><dd class="col-8" th:text="${product.cpu}"></dd><dt class="col-4">RAM</dt><dd class="col-8" th:text="${product.ram}"></dd><dt class="col-4">Ổ cứng</dt><dd class="col-8" th:text="${product.storage}"></dd><dt class="col-4">Đồ họa</dt><dd class="col-8" th:text="${product.gpu}"></dd><dt class="col-4">Màn hình</dt><dd class="col-8" th:text="${product.screen}"></dd><dt class="col-4">Tồn kho</dt><dd class="col-8" th:text="${product.stock}"></dd></dl>
-<form th:action="@{/cart/items}" method="post" sec:authorize="isAuthenticated()" class="d-flex gap-2">
+<form th:action="@{/cart/items}" method="post" sec:authorize="isAuthenticated()" class="d-flex align-items-center gap-2">
 <input type="hidden" name="productId" th:value="${product.id}">
-<input aria-label="Số lượng" class="form-control qty" type="number" name="quantity" value="1" min="1" max="20">
+<div class="input-group" style="width: 140px;">
+  <button class="btn btn-outline-secondary" type="button" onclick="const i=this.nextElementSibling; if(i.value>1) i.value--">−</button>
+  <input aria-label="Số lượng" class="form-control qty text-center" type="number" name="quantity" value="1" min="1" max="20">
+  <button class="btn btn-outline-secondary" type="button" onclick="const i=this.previousElementSibling; if(i.value<20) i.value++">+</button>
+</div>
 <button class="btn btn-primary" th:disabled="${product.stock==0}">Thêm vào giỏ hàng</button>
 </form><a sec:authorize="!isAuthenticated()" th:href="@{/login}" class="btn btn-dark">Đăng nhập để mua hàng</a>
 <p class="text-secondary mt-4" th:text="${product.description}">

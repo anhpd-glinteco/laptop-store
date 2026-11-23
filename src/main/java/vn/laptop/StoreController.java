@@ -140,14 +140,23 @@ public class StoreController {
 
   @PostMapping("/cart/items")
   String add(
-      Principal p, @RequestParam long productId, @RequestParam(defaultValue = "1") int quantity) {
+      Principal p,
+      @RequestParam long productId,
+      @RequestParam(defaultValue = "1") int quantity,
+      RedirectAttributes ra) {
     cart.change(uid(p), productId, quantity, true);
+    ra.addFlashAttribute("message", "Đã thêm sản phẩm vào giỏ hàng thành công!");
     return "redirect:/cart";
   }
 
   @PostMapping("/cart/update")
-  String update(Principal p, @RequestParam long productId, @RequestParam int quantity) {
+  String update(
+      Principal p,
+      @RequestParam long productId,
+      @RequestParam int quantity,
+      RedirectAttributes ra) {
     cart.change(uid(p), productId, quantity, false);
+    ra.addFlashAttribute("message", "Đã cập nhật giỏ hàng!");
     return "redirect:/cart";
   }
 

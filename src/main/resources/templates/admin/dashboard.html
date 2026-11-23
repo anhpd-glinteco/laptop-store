@@ -45,6 +45,7 @@
 <section class="col-md-6">
 <div class="panel">
 <h2 class="h5">Sản phẩm bán chạy</h2>
+<div class="table-responsive">
 <table class="table">
 <thead>
 <tr><th>Laptop</th><th>Số lượng</th>
@@ -55,12 +56,14 @@
 </tr>
 </tbody>
 </table>
+</div>
 <p th:if="${best.empty}">Chưa có dữ liệu trong kỳ.</p>
 </div>
 </section>
 <section class="col-md-6">
 <div class="panel">
 <h2 class="h5">Doanh thu từng ngày</h2>
+<div class="table-responsive">
 <table class="table">
 <thead>
 <tr><th>Ngày</th><th>Doanh thu</th>
@@ -71,6 +74,7 @@
 </tr>
 </tbody>
 </table>
+</div>
 </div>
 </section>
 </div>

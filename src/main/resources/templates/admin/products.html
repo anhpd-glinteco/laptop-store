@@ -22,7 +22,7 @@
 <tr th:each="p:${products}"><td th:text="${p.name}"></td><td th:text="${p.brand}"></td><td th:text="${#numbers.formatInteger(p.price,1,'POINT')}"></td><td th:text="${p.stock}"></td><td th:text="${p.active?'Đang bán':'Đã ẩn'}"></td><td>
 <div class="d-flex gap-2"><a class="btn btn-sm btn-outline-dark" th:href="@{/admin/products/{id}/edit(id=${p.id})}">Sửa / nhập kho</a>
 <form th:action="@{/admin/products/{id}/hide(id=${p.id})}" method="post">
-<button class="btn btn-sm btn-outline-danger">Ẩn</button>
+<button class="btn btn-sm btn-outline-danger" onclick="return confirm('Bạn có chắc chắn muốn ẩn sản phẩm này khỏi cửa hàng?')">Ẩn</button>
 </form>
 </div></td>
 </tr>
