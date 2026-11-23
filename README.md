@@ -1,250 +1,159 @@
-# Laptop Store — Dự án TX1 trên VS Code
+# Laptop Store E-Commerce System
 
-Ứng dụng học tập Java Spring Boot + Thymeleaf + Bootstrap + MySQL. Frontend render phía server; không cần Node.js hay React. Có chế độ H2 chạy thử không cần Docker. COD chạy độc lập; VNPay/MoMo là adapter sandbox cần merchant thật để kiểm tra đầu-cuối.
+Hệ thống bán lẻ laptop trực tuyến xây dựng trên nền tảng Java Spring Boot, kiến trúc MVC server-side render với Thymeleaf, Bootstrap 5 và cơ sở dữ liệu MySQL. Hỗ trợ đa dạng phương thức thanh toán (COD, cổng thanh toán trực tuyến qua VNPay và MoMo sandbox), quản lý kho chống overselling bằng Pessimistic Locking và phân quyền người dùng theo vai trò.
 
-## 1. Đọc theo thứ tự
+---
 
-1. README này: chạy dự án, cấu hình MySQL, thao tác demo.
-2. `docs/THIET_KE.md`: phân tích chức năng, kiến trúc, mô hình dữ liệu, quy tắc nghiệp vụ.
-3. `docs/USE_CASE.md`: đặc tả và ngoại lệ.
-4. `docs/uml/`: 4 Use Case Diagram chuẩn PlantUML và 2 Sequence Diagram.
-5. `docs/KIEM_THU.md`: kiểm thử tự động, thủ công, Postman và giới hạn xác minh.
-6. `docs/THANH_TOAN.md`: cấu hình sandbox và xác thực IPN.
-7. `docs/DEMO_VA_NOP_BAI.md`: kịch bản 20 mvn clean test
-mvn spring-boot:run "-Dspring-boot.run.profiles=demo"phút và checklist nộp.
+## Tính năng chính
 
-## 2. Công cụ cần có
+### Dành cho khách hàng (Customer)
+- **Danh mục & Tìm kiếm**: Lọc sản phẩm theo hãng, nhu cầu sử dụng (Văn phòng, Gaming, Đồ họa), khoảng giá và sắp xếp linh hoạt.
+- **Chi tiết sản phẩm**: Xem thông số kỹ thuật (CPU, RAM, GPU, ổ cứng, màn hình), tình trạng tồn kho thời gian thực và đánh giá từ người mua trước.
+- **Giỏ hàng & Đặt hàng**: Thêm, cập nhật số lượng, áp dụng mã giảm giá, tính toán tổng tiền trực tiếp từ server để ngăn ngừa giả mạo giá.
+- **Thanh toán linh hoạt**: Hỗ trợ thanh toán khi nhận hàng (COD), tích hợp adapter cổng thanh toán VNPay và MoMo.
+- **Quản lý đơn hàng & Đánh giá**: Theo dõi tiến độ đơn hàng qua từng giai đoạn và gửi đánh giá sản phẩm sau khi đã nhận hàng thành công.
 
-| Công cụ | Phiên bản / mục đích |
-|---|---|
-| JDK | 17 hoặc 21; mã nguồn target Java 17 |
-| Apache Maven | 3.6.3 trở lên; đã dùng Maven 3.9.11 để kiểm tra |
-| Spring Boot | 3.5.16, cố định trong pom.xml |
-| VS Code | Extension Pack for Java; Spring Boot Extension Pack |
-| MySQL | 8.x, đề xuất 8.4; hoặc Docker Compose |
-| Postman | Import file `postman/LaptopStore.postman_collection.json` |
-| Git | Quản lý phiên bản, không commit mật khẩu |
+### Dành cho quản trị viên (Admin)
+- **Báo cáo kinh doanh (Dashboard)**: Thống kê doanh thu thực tế theo ngày, tháng, năm hoặc khoảng thời gian tùy chọn; danh sách sản phẩm bán chạy nhất.
+- **Quản lý sản phẩm & Kho hàng**: Thêm mới, chỉnh sửa thông số, cập nhật tồn kho, upload ảnh đại diện và ẩn sản phẩm (xóa mềm để bảo toàn dữ liệu lịch sử đơn hàng).
+- **Quản lý danh mục**: Thao tác CRUD danh mục sản phẩm qua JDBC Template.
+- **Quy trình xử lý đơn hàng**: Điều phối chuyển trạng thái đơn hàng theo quy trình khép kín: `Chờ duyệt` -> `Đang chuẩn bị` -> `Đang giao` -> `Đã giao`.
 
-Spring Boot 3.5 yêu cầu tối thiểu Java 17 và Maven 3.6.3. Nguồn: https://docs.spring.io/spring-boot/3.5/system-requirements.html
+---
 
-Mở PowerShell mới sau khi cài JDK/Maven:
+## Kiến trúc & Công nghệ
 
-```powershell
-java -version
-javac -version
-mvn -v
-git --version
+- **Backend**: Java 17+, Spring Boot 3.5.x
+- **Bảo mật**: Spring Security 6 (Session-based Authentication, CSRF Protection, mã hóa mật khẩu BCrypt)
+- **Truy cập dữ liệu**:
+  - Spring Data JPA / Hibernate (Quản lý nghiệp vụ chính, locking, transaction)
+  - Spring JDBC / JdbcTemplate (Minh họa CRUD danh mục và tổng hợp báo cáo doanh thu)
+- **Frontend**: Thymeleaf, Bootstrap 5.3.3, CSS tùy chỉnh (Responsive hoàn chỉnh cho Desktop, Tablet và Mobile)
+- **Cơ sở dữ liệu**: MySQL 8.x (Hỗ trợ profile H2 in-memory cho môi trường dev/test)
+
+```text
+Controller (Store / Admin / Api / Payment)
+    └── Service Layer (Account, Catalog, Cart, Order, Review, Payment)
+            └── Repository / DAO (JPA Repositories, JdbcCategoryDao, ReportDao)
+                    └── Database (MySQL / H2)
 ```
 
-`mvn -v` cần trỏ tới JDK 17/21. Nếu báo không nhận lệnh, thêm thư mục `bin` của Maven vào PATH rồi mở lại VS Code. Không cần cài Tomcat riêng.
+---
 
-## 3. Chạy nhanh trên VS Code, chưa cần MySQL / Docker
+## Yêu cầu môi trường
 
-1. Giải nén ZIP vào thư mục đơn giản, ví dụ `D:\Projects\laptop-store`.
-2. VS Code → File → Open Folder → chọn thư mục chứa `pom.xml`.
-3. Cài các extension được đề xuất. Chờ Java tải và lập chỉ mục dependency.
-4. Terminal → New Terminal → PowerShell.
-5. Chạy:
+- **Java Development Kit (JDK)**: Phiên bản 17 hoặc 21
+- **Apache Maven**: Phiên bản 3.6.3 trở lên
+- **MySQL Server**: Phiên bản 8.0 trở lên (hoặc Docker Engine nếu chạy qua container)
 
-```powershell
+---
+
+## Hướng dẫn cài đặt & Khởi chạy
+
+### 1. Khởi chạy nhanh (Chế độ Demo - Sử dụng H2 Database)
+Không cần cài đặt trước MySQL, cơ sở dữ liệu H2 sẽ tự động khởi tạo dữ liệu mẫu:
+
+```bash
+cd laptop-store
 mvn clean test
 mvn spring-boot:run "-Dspring-boot.run.profiles=demo"
 ```
 
-6. Chờ dòng `Started LaptopApplication` rồi mở http://localhost:8080.
-7. Tài khoản admin **chỉ cho demo cục bộ**:
-   - Email: `admin@laptop.local`
-   - Mật khẩu: `AdminDemo@123`
-8. Đăng ký một tài khoản khách để demo luồng mua hàng.
+Truy cập ứng dụng tại: `http://localhost:8080`
 
-Chế độ demo dùng H2 lưu tại `data/laptop-demo.*`, **không phải MySQL**, không thay thế bước chứng minh JDBC/MySQL khi nộp bài. Bootstrap được đóng gói bằng WebJar, không phụ thuộc CDN. Các sản phẩm seed dùng ảnh minh họa chung, cấu hình và giá giả lập cho học tập.
+**Tài khoản quản trị mặc định (Demo):**
+- Email: `admin@laptop.local`
+- Mật khẩu: `AdminDemo@123`
 
-Dừng server: Ctrl+C. Mở hai server cùng lúc trên cổng 8080 sẽ lỗi. Đổi cổng nếu cần:
+---
 
-```powershell
-$env:PORT="8081"
-mvn spring-boot:run "-Dspring-boot.run.profiles=demo"
-```
+### 2. Khởi chạy với MySQL
 
-Đổi password admin trước lần seed đầu tiên:
-
-```powershell
-$env:ADMIN_PASSWORD="MatKhauRiengCuaBan@123"
-mvn spring-boot:run "-Dspring-boot.run.profiles=demo"
-```
-
-Seed không ghi đè tài khoản đã tồn tại, nên đổi biến môi trường sau lần chạy đầu sẽ không đổi mật khẩu trong DB.
-
-## 4. Chạy MySQL trực tiếp, không cần Docker Desktop
-
-Dùng MySQL Server + Workbench hoặc MySQL CLI. SQL Server không thay cho MySQL trong cấu hình này.
-
-1. Tạo kết nối MySQL bằng tài khoản quản trị trong Workbench.
-2. File → Open SQL Script → `database/schema.sql` → chạy toàn bộ trên cơ sở dữ liệu mới.
-3. Tạo tài khoản ứng dụng riêng bằng SQL sau; thay password trước khi chạy:
+#### Bước 2.1: Khởi tạo cơ sở dữ liệu
+1. Mở MySQL Workbench hoặc MySQL CLI.
+2. Thực thi script khởi tạo bảng: `database/schema.sql`.
+3. Tạo tài khoản truy cập cho ứng dụng:
 
 ```sql
-CREATE USER 'laptop_app'@'localhost' IDENTIFIED BY 'ThayBangMatKhauCuaBan@123';
+CREATE USER 'laptop_app'@'localhost' IDENTIFIED BY 'MatKhauUngDung@123';
 GRANT SELECT, INSERT, UPDATE, DELETE ON laptop_store.* TO 'laptop_app'@'localhost';
+FLUSH PRIVILEGES;
 ```
 
-4. Mở terminal PowerShell trong thư mục dự án:
+#### Bước 2.2: Cấu hình biến môi trường và chạy ứng dụng
+Mở terminal trong thư mục `laptop-store`:
 
+**Trên Windows (PowerShell):**
 ```powershell
 $env:DB_URL="jdbc:mysql://localhost:3306/laptop_store?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Ho_Chi_Minh&characterEncoding=UTF-8"
 $env:DB_USER="laptop_app"
-$env:DB_PASSWORD="ThayBangMatKhauCuaBan@123"
+$env:DB_PASSWORD="MatKhauUngDung@123"
 $env:APP_SEED="true"
-$env:ADMIN_PASSWORD="MatKhauQuanTriRieng@123"
 mvn spring-boot:run "-Dspring-boot.run.profiles=mysql"
 ```
 
-5. `ddl-auto=validate`: ứng dụng kiểm tra schema, không tự tạo/xóa bảng MySQL. Nếu báo thiếu bảng: kiểm tra script và đúng DB_URL. Nếu báo Access denied: kiểm tra tài khoản/password/quyền và host của user.
-6. Truy cập http://localhost:8080. MySQL và H2 là hai DB tách biệt; đăng ký tài khoản riêng trong môi trường đang dùng.
-7. Sau lần seed đầu, có thể tắt `$env:APP_SEED="false"`.
-
-`useSSL=false` dùng cho DB cục bộ. Khi triển khai server thật, cấu hình TLS cho DB và HTTPS cho website.
-
-## 5. MySQL bằng Docker Compose (tùy chọn)
-
-Chỉ dùng nếu Docker Engine đã chạy. Không cần sửa WSL để dùng cách MySQL trực tiếp ở mục 4.
-
-```powershell
-Copy-Item .env.example .env
+**Trên Linux / macOS (Bash):**
+```bash
+export DB_URL="jdbc:mysql://localhost:3306/laptop_store?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Ho_Chi_Minh&characterEncoding=UTF-8"
+export DB_USER="laptop_app"
+export DB_PASSWORD="MatKhauUngDung@123"
+export APP_SEED="true"
+mvn spring-boot:run -Dspring-boot.run.profiles=mysql
 ```
 
-Mở `.env`, thay các password mẫu. Sau đó:
+---
 
-```powershell
+### 3. Khởi chạy với Docker Compose (Tùy chọn)
+
+Khởi động dịch vụ MySQL container:
+```bash
 docker compose up -d mysql
-docker compose ps
-docker compose logs mysql
 ```
+*(Cổng MySQL ngoài host được ánh xạ là `3307`, cổng container là `3306`)*
 
-Cổng MySQL từ Windows là **3307**, cổng nội bộ container là 3306:
-
-```powershell
-$env:DB_URL="jdbc:mysql://localhost:3307/laptop_store?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Ho_Chi_Minh"
-$env:DB_USER="laptop_app"
-$env:DB_PASSWORD="GiaTriDB_PASSWORDTrongFileEnv"
-$env:APP_SEED="true"
-$env:ADMIN_PASSWORD="MatKhauAdminCuaBan@123"
-mvn spring-boot:run "-Dspring-boot.run.profiles=mysql"
-```
-
-**Maven không tự đọc `.env`.** `.env` được Docker Compose đọc; chạy Maven cần đặt biến `$env:...` như trên.
-
-Chạy cả app trong Docker:
-
-```powershell
+Chạy toàn bộ hệ thống (App + MySQL) trong container:
+```bash
 docker compose --profile full up -d --build
 ```
 
-Dừng mà giữ dữ liệu:
+---
 
-```powershell
-docker compose --profile full down
-```
-
-Không dùng `down -v` nếu cần giữ DB. SQL init chỉ chạy khi volume MySQL còn trống; container chạy lại không tự import lại schema.
-
-## 6. Các trang và luồng thao tác
-
-| URL | Chức năng | Quyền |
-|---|---|---|
-| `/` | Tìm tên, lọc hãng/giá/nhu cầu, sắp xếp, phân trang | Công khai |
-| `/products/{id}` | Cấu hình, ảnh và đánh giá | Công khai |
-| `/register`, `/login` | Đăng ký và đăng nhập | Công khai |
-| `/profile` | Họ tên, điện thoại, địa chỉ | Đăng nhập |
-| `/cart`, `/checkout` | Giỏ hàng, địa chỉ, mã giảm, đặt hàng | Đăng nhập |
-| `/orders`, `/orders/{id}` | Lịch sử và chi tiết đơn của mình | Chủ đơn |
-| `/admin` | Doanh thu ngày/tháng/năm hoặc khoảng ngày | ADMIN |
-| `/admin/products` | Thêm/sửa/ẩn laptop, cập nhật tồn, upload ảnh | ADMIN |
-| `/admin/categories` | CRUD danh mục qua DAO/JDBC | ADMIN |
-| `/admin/orders` | Duyệt, chuẩn bị, giao, hoàn tất | ADMIN |
-
-Luồng demo:
-
-1. Khách đăng ký → đăng nhập → tìm laptop → thêm giỏ → nhập địa chỉ → chọn COD.
-2. Nhập `LAPTOP5` nếu muốn minh họa giảm 5%, tối đa 500.000 ₫, không có phí giao hàng.
-3. Nhấn xác nhận → xem mã đơn. Tổng tiền lấy từ DB phía server.
-4. Đăng nhập admin trong trình duyệt khác/cửa sổ riêng → Đơn hàng → chọn đơn.
-5. Chuyển từng bước: `NEW` → `PREPARING` → `SHIPPING` → `DELIVERED`.
-6. Với COD, thao tác đã giao cũng xác nhận đã thu tiền. Không dùng thao tác này nếu tiền chưa thu.
-7. Khách quay lại trang sản phẩm → đánh giá 1–5 sao và bình luận.
-8. Admin mở Dashboard → chọn Hôm nay để thấy doanh thu và sản phẩm bán chạy.
-
-## 7. Đọc mã theo tầng
+## Cấu trúc thư mục
 
 ```text
-Controller (Store/Admin/Api/Payment)
-    → Service (Account/Catalog/Cart/Order/Review/Payment)
-        → JPA Repository hoặc CategoryDao/JdbcCategoryDao/ReportDao
-            → MySQL
+laptop-store/
+├── src/
+│   ├── main/
+│   │   ├── java/vn/laptop/       # Mã nguồn Java (Controllers, Services, Repositories, Models)
+│   │   └── resources/
+│   │       ├── static/           # Tài nguyên tĩnh (CSS, JS, Hình ảnh minh họa)
+│   │       └── templates/        # Giao diện Thymeleaf (Storefront và Admin portal)
+│   └── test/java/vn/laptop/      # Bộ kiểm thử tích hợp (Integration Tests)
+├── database/
+│   └── schema.sql                # Kịch bản DDL khởi tạo cơ sở dữ liệu
+├── docs/                         # Tài liệu kỹ thuật chi tiết
+│   ├── THIET_KE.md               # Thiết kế chi tiết kiến trúc và dữ liệu
+│   ├── USE_CASE.md               # Đặc tả các ca sử dụng
+│   ├── KIEM_THU.md               # Kế hoạch và danh mục test cases
+│   └── THANH_TOAN.md             # Đặc tả tích hợp cổng thanh toán
+├── postman/                      # File cấu hình Postman API Collection
+├── Dockerfile                    # Containerization build script
+├── compose.yaml                  # Docker Compose orchestration
+└── pom.xml                       # Maven build & dependencies definition
 ```
 
-- `OrderService` là interface, `OrderServiceImpl` chứa nghiệp vụ và `@Transactional`.
-- `JdbcCategoryDao` dùng `JdbcTemplate`, SQL tham số hóa, có CRUD đầy đủ; UI danh mục gọi thật DAO này.
-- `ReportDao` tổng hợp doanh thu bằng JDBC.
-- Các repository còn lại dùng Spring Data JPA, ORM qua entity.
-- `SecurityConfig` phân quyền ADMIN, session login, BCrypt, CSRF.
-- `Forms` tách DTO nhập liệu khỏi entity để không cho khách tự gán role, giá đơn hay trạng thái thanh toán.
-- Tất cả class đặt chung package `vn.laptop` cho bài học dễ mở; tầng được tách theo class/trách nhiệm. Dự án lớn nên chia subpackage và module.
+---
 
-Yêu cầu PDF nêu DAO/JDBC; yêu cầu mới của bạn nêu ORM/JPA. Bản này kết hợp hai cách và chứng minh CRUD JDBC qua danh mục. Nếu giảng viên yêu cầu **mọi bảng** đều CRUD bằng JDBC thì cần chuyển các Repository còn lại sang DAO JDBC; không nên khẳng định JPA tương đương yêu cầu JDBC tuyệt đối.
+## Kiểm thử hệ thống
 
-## 8. Test, build, export
+Dự án đi kèm bộ kiểm thử tích hợp toàn diện (24 test scenarios) kiểm tra:
+- Khóa đơn hàng và tính chính xác của kho (Pessimistic Locking ngăn ngừa race conditions).
+- Xác thực chữ ký thanh toán và cơ chế chống gửi lặp IPN (Idempotent Payment Callback).
+- Phân quyền người dùng (Authorization, CSRF Protection, Role separation).
+- Toàn vẹn giao dịch và tính nhất quán dữ liệu.
 
-```powershell
+Chạy kiểm thử tự động:
+```bash
 mvn clean test
-mvn clean package
-java -jar target/laptop-store-1.0.0.jar --spring.profiles.active=demo
 ```
-
-Test dùng H2 in-memory và không kết nối DB cá nhân. Kết quả trong `target/surefire-reports`. Chi tiết kịch bản trong `docs/KIEM_THU.md`.
-
-Xuất SQL từ MySQL sau khi chạy demo:
-
-```powershell
-.\scripts\export-db.ps1 -User laptop_app -Port 3306
-```
-
-Nếu dùng Docker port mapping, dùng `-Port 3307`. Cần `mysqldump` trong PATH và nhập password khi được hỏi. Script dùng `--result-file` để tránh PowerShell 5 xuất UTF-16.
-
-Dùng Workbench thay thế: Server → Data Export → chọn `laptop_store` → Export to Self-Contained File → Start Export. Kiểm tra file có cả CREATE TABLE và INSERT; không nộp thông tin thanh toán/mật khẩu merchant.
-
-`database/schema.sql` đi kèm là schema khởi tạo, **không phải bản export dữ liệu từ DB của bạn**. File export cần tự tạo sau demo để đáp ứng hồ sơ nộp.
-
-## 9. Giới hạn thực tế
-
-- Đây là dự án học tập, chưa phải cửa hàng production.
-- Ảnh: một ảnh đại diện/laptop; cập nhật bằng upload JPEG/PNG. Chưa có album nhiều ảnh.
-- Sản phẩm xóa mềm bằng `active=false` để bảo toàn đơn cũ. Danh mục chỉ xóa nếu chưa được dùng.
-- Tồn kho là số lượng có thể bán; chưa có chứng từ nhập/xuất hoặc lịch sử điều chỉnh kho.
-- Mã giảm giá demo cố định; chưa có màn hình quản lý chiến dịch.
-- Thanh toán thật / hoàn tiền tự động / xuất hóa đơn / gửi email / xác minh email / quên mật khẩu chưa triển khai.
-- Adapter VNPay/MoMo đã có tạo yêu cầu và kiểm chữ ký, kiểm tiền, chống IPN lặp; chưa xác nhận hoạt động đầu-cuối bằng merchant thật.
-- Job hết hạn chạy khi app đang hoạt động; khi khởi động lại sẽ xử lý các đơn quá hạn.
-- Không có SPA React/Angular trong bản này. Nếu chọn SPA thì thay Presentation Layer và bổ sung auth/API tương ứng.
-
-## 10. Nguồn kỹ thuật
-
-- Spring Boot: https://docs.spring.io/spring-boot/3.5/system-requirements.html
-- VNPay PAY 2.1.0: https://sandbox.vnpayment.vn/apis/docs/thanh-toan-pay/pay.html
-- MoMo captureWallet: https://developers.momo.vn/v3/docs/payment/api/wallet/onetime/
-- MoMo integration: https://developers.momo.vn/v3/vi/docs/payment/onboarding/integration-process/
-
-## 11. Git trong VS Code
-
-Sau khi kiểm tra hoạt động:
-
-```powershell
-git init
-git add .
-git status
-git commit -m "Implement laptop store coursework"
-```
-
-Kiểm tra `git status` trước commit để chắc chắn không có `.env`, dữ liệu H2 hay ảnh upload cá nhân. Chỉ thêm remote và push sau khi nhóm đã tạo đúng repository của mình. Mỗi người commit phần thay đổi thực tế của họ.
-
-Để đọc sơ đồ, mở `docs/uml/*.puml` bằng extension PlantUML trong VS Code và chọn Preview Current Diagram (thường Alt+D). Renderer local có thể cần Java và Graphviz; hoặc dùng renderer PlantUML do nhóm chọn. Các đặc tả và ERD dạng Mermaid đọc trong Markdown preview có hỗ trợ Mermaid.
+Toàn bộ kết quả chi tiết được lưu trữ tại `target/surefire-reports`.
